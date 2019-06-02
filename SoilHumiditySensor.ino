@@ -10,7 +10,7 @@
 
 #define MQTT_HOST   "stofradar.nl"
 #define MQTT_PORT   1883
-#define MQTT_TOPIC  "bertrik/plant/humidity"
+#define MQTT_TOPIC  "revspace/plant/%s/humidity"
 
 #define LOG_PERIOD 10000
 
@@ -51,7 +51,7 @@ void setup(void)
     pinMode(PIN_AOUT, INPUT);
 
     // get ESP id
-    sprintf(esp_id, "%08X", ESP.getChipId());
+    sprintf(esp_id, "%06X", ESP.getChipId());
     Serial.print("ESP ID: ");
     Serial.println(esp_id);
 
@@ -63,10 +63,10 @@ void setup(void)
     wifiManager.autoConnect("ESP-PLANT");
 }
 
-// https://www.domoticz.com/forum/viewtopic.php?t=24116
 
 void loop(void)
 {
+    char topic[32];
     char value[16];
     static unsigned long last_sent = 0;
 
@@ -74,10 +74,11 @@ void loop(void)
     if ((ms - last_sent) > LOG_PERIOD) {
         last_sent = ms;
 
-        float droogheid = (840 - analogRead(PIN_AOUT)) / 425.0 * 100.0;
-        snprintf(value, sizeof(value), "%.2f", droogheid);
-        Serial.println(value);
-        if (!mqtt_send(MQTT_TOPIC, value, true)) {
+        snprintf(topic, sizeof(topic), MQTT_TOPIC, esp_id);
+        // https://www.domoticz.com/forum/viewtopic.php?t=24116
+        float humidity = (840 - analogRead(PIN_AOUT)) / 425.0 * 100.0;
+        snprintf(value, sizeof(value), "%.1f", humidity);
+        if (!mqtt_send(topic, value, true)) {
             Serial.println("Restarting ESP...");
             ESP.restart();
         }
@@ -85,3 +86,4 @@ void loop(void)
 
     mqttClient.loop();
 }
+
