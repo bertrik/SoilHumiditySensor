@@ -10,7 +10,7 @@
 
 #define MQTT_HOST   "stofradar.nl"
 #define MQTT_PORT   1883
-#define MQTT_TOPIC  "revspace/plant/%s/humidity"
+#define MQTT_TOPIC  "bertrik/plant/%s/humidity"
 
 #define LOG_PERIOD 10000
 
