@@ -14,7 +14,7 @@
 // property 'status' can indicate 'online' or 'offline'
 #define MQTT_TOPIC  "hackalot/plant/%s/%s"
 
-#define LOG_PERIOD 10000
+#define LOG_PERIOD 60000
 
 static char esp_id[16];
 static WiFiManager wifiManager;
