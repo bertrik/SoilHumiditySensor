@@ -4,6 +4,7 @@
 #include <WiFiManager.h>
 #include <PubSubClient.h>
 
+#define PIN_LED     D4
 #define PIN_GND     D5
 #define PIN_VCC     D0
 #define PIN_AOUT    A0
@@ -52,6 +53,11 @@ void setup(void)
 {
     Serial.begin(115200);
 
+    // LED on
+    pinMode(PIN_LED, OUTPUT);
+    digitalWrite(PIN_LED, 0);
+
+    // configure sensor pins
     pinMode(PIN_GND, OUTPUT);
     digitalWrite(PIN_GND, 0);
     pinMode(PIN_VCC, OUTPUT);
@@ -85,14 +91,22 @@ void loop(void)
 
         // https://www.domoticz.com/forum/viewtopic.php?t=24116
         float humidity = (840 - analogRead(PIN_AOUT)) / 425.0 * 100.0;
+
+        // send over MQTT
         char value[16];
         snprintf(value, sizeof(value), "%.1f", humidity);
         if (!mqtt_send(statustopic, valuetopic, value, true)) {
             Serial.println("Restarting ESP...");
             ESP.restart();
         }
+
+        // too dry/humid?
+        if ((humidity < 20) || (humidity > 80)) {
+            digitalWrite(PIN_LED, 0);
+        } else {
+            digitalWrite(PIN_LED, 1);
+        }
     }
 
     mqttClient.loop();
 }
-
