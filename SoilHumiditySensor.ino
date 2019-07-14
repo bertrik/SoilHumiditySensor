@@ -94,7 +94,7 @@ void loop(void)
 
         // send over MQTT
         char value[16];
-        snprintf(value, sizeof(value), "%.1f", humidity);
+        snprintf(value, sizeof(value), "%.1f %%", humidity);
         if (!mqtt_send(statustopic, valuetopic, value, true)) {
             Serial.println("Restarting ESP...");
             ESP.restart();
